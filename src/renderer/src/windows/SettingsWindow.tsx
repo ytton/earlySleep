@@ -41,6 +41,7 @@ const SettingsWindow: React.FC = () => {
       const values = await form.validateFields();
       await saveSettings(values);
       message.success('设置保存成功！');
+      handleClose();
     } catch (error) {
       message.error('保存设置失败！');
     }
