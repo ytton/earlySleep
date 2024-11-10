@@ -2,45 +2,41 @@
  * @see https://www.electron.build/configuration/configuration
  */
 {
-  "appId": "com.electron.earlySleep",
-  "asar": true,
-  "directories": {
-    "output": "release/${version}"
+  appId: 'com.electron.earlySleep',
+  asar: true,
+  directories: {
+    output: 'release/${version}'
   },
-  "files": [
-    "dist-electron",
-    "dist",
-    "./config.ini",
-    "resources"
+  extraFiles: [
+    {
+      from: 'config.ini',
+      to: 'config.ini'
+    }
   ],
-  "mac": {
-    "artifactName": "${productName}_${version}.${ext}",
-    "target": [
-      "dmg",
-      "zip"
-    ]
+  files: ['dist-electron', 'dist', './config.ini', 'resources'],
+  mac: {
+    artifactName: '${productName}_${version}.${ext}',
+    target: ['dmg', 'zip']
   },
-  "win": {
-    "target": [
+  win: {
+    target: [
       {
-        "target": "nsis",
-        "arch": [
-          "x64"
-        ]
+        target: 'nsis',
+        arch: ['x64']
       }
     ],
-    "artifactName": "${productName}_${version}.${ext}",
-    "icon": "resources/icon.png"
+    artifactName: '${productName}_${version}.${ext}',
+    icon: 'resources/icon.png'
   },
-  "nsis": {
-    "oneClick": false,
-    "perMachine": false,
-    "allowToChangeInstallationDirectory": true,
-    "deleteAppDataOnUninstall": false
+  nsis: {
+    oneClick: false,
+    perMachine: false,
+    allowToChangeInstallationDirectory: true,
+    deleteAppDataOnUninstall: false
   },
-  "publish": {
-    "provider": "generic",
-    "channel": "latest",
-    "url": "https://github.com/electron-vite/electron-vite-react/releases/download/v0.9.9/"
+  publish: {
+    provider: 'generic',
+    channel: 'latest',
+    url: 'https://github.com/electron-vite/electron-vite-react/releases/download/v0.9.9/'
   }
 }

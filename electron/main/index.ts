@@ -117,26 +117,6 @@ function createSettingsWindow(): void {
   });
 }
 
-// 查是否应该显示倒计时窗口
-function checkCountdownWindow(): void {
-  const shutdownTime = store.get('shutdownTime');
-  if (!shutdownTime) return;
-
-  try {
-    const settings = readConfig();
-    const now = dayjs();
-    const shutdownMoment = dayjs(shutdownTime);
-    const reminderTime = shutdownMoment.subtract(settings.reminderMinutes, 'minute');
-
-    // 如果当前时间在提醒时间之后，但在关机时间之前，就显示倒计时窗口
-    if (now.isAfter(reminderTime) && now.isBefore(shutdownMoment)) {
-      createCountdownWindow();
-    }
-  } catch (error) {
-    console.error('检查倒计时窗口失败:', error);
-  }
-}
-
 // 设置关机任务
 function scheduleShutdown(time: string): void {
   try {
@@ -189,14 +169,11 @@ function scheduleShutdown(time: string): void {
     // 设置关机任务
     shutdownJob = schedule.scheduleJob(shutdownTime.toDate(), () => {
       executeShutdown();
-      // 启动强制关机检查
       startForceShutdownCheck();
     });
 
-    // 如果当前时间已过关机时间，立即启动强制关机检查
-    if (now.isAfter(shutdownTime)) {
-      startForceShutdownCheck();
-    }
+    // 启动强制关机检查
+    startForceShutdownCheck();
   } catch (error) {
     console.error('设置关机任务失败:', error);
   }
@@ -209,7 +186,7 @@ function startForceShutdownCheck(): void {
     clearInterval(forceShutdownInterval);
   }
 
-  // 每分钟检查一次
+  // 每1s检查一次
   forceShutdownInterval = setInterval(checkForceShutdown, 10 * 1000);
 
   // 立即执行一次检查
@@ -220,12 +197,15 @@ function startForceShutdownCheck(): void {
 function checkForceShutdown(): void {
   const shutdownTime = store.get('shutdownTime');
   if (!shutdownTime) return;
-
+  const config = readConfig();
   const now = dayjs();
   const scheduledTime = dayjs(shutdownTime);
-
+  const lastDayShutdownTime = dayjs(shutdownTime).subtract(1, 'day');
   // 如果当前时间已过关机时间，执行关机
-  if (now.isAfter(scheduledTime)) {
+  if (
+    (now.isAfter(lastDayShutdownTime) && now.isBefore(lastDayShutdownTime.add(config.forbiddenHours, 'hour'))) ||
+    (now.isAfter(scheduledTime) && now.isBefore(scheduledTime.add(config.forbiddenHours, 'hour')))
+  ) {
     executeShutdown();
   }
 }
@@ -330,41 +310,17 @@ function createTray(): void {
   }
 }
 
-// 检查是否在禁止开机时间段
-function checkForbiddenStartup(): void {
-  const shutdownTime = store.get('shutdownTime');
-  const settings = readConfig();
-
-  if (shutdownTime && settings.forbiddenHours > 0) {
-    const now = dayjs();
-    const lastShutdown = dayjs(shutdownTime);
-    const forbiddenEnd = lastShutdown.add(settings.forbiddenHours, 'hour');
-
-    if (now.isBefore(forbiddenEnd)) {
-      executeShutdown();
-    }
-  }
-}
-
 // 应用初始化
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron');
 
+  initShutdownTime();
   // 创建窗口和托盘
   createMainWindow();
   createTray();
 
-  // 检查是否在禁止开机时间段
-  checkForbiddenStartup();
-
-  // 检查是否需要显示倒计时窗口
-  checkCountdownWindow();
-
-  // 检查是否需要启动强制关机检查
   const shutdownTime = store.get('shutdownTime');
-  if (shutdownTime && dayjs().isAfter(dayjs(shutdownTime))) {
-    startForceShutdownCheck();
-  }
+  shutdownTime && scheduleShutdown(shutdownTime);
 
   // 添加快捷键：Ctrl+Shift+I (Windows/Linux) 或 Cmd+Shift+I (macOS) 打开开发者工具
   globalShortcut.register('CommandOrControl+Shift+I', () => {
@@ -380,6 +336,18 @@ app.whenReady().then(() => {
     mainWindow?.webContents.send('sync-settings', currentSettings);
   });
 });
+
+const initShutdownTime = () => {
+  const now = dayjs();
+  const shutdownTime = store.get('shutdownTime');
+  if (shutdownTime && dayjs(shutdownTime).isBefore(now)) {
+    // 拼接当前+ 关机时间的时间
+    const oldTime = dayjs(shutdownTime);
+    const newTime = now.startOf('day').add(oldTime.hour(), 'hour').add(oldTime.minute(), 'minute');
+    scheduleShutdown(newTime.format('YYYY-MM-DD HH:mm:ss'));
+    store.set('shutdownTime', newTime.format('YYYY-MM-DD HH:mm:ss'));
+  }
+};
 
 // 确保在应用退出时注销快捷键
 app.on('will-quit', () => {
