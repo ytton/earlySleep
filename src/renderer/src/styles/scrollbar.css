@@ -1,0 +1,30 @@
+/* 自定义滚动条样式 */
+.ps__rail-y {
+  background-color: transparent !important;
+  width: 8px !important;
+}
+
+.ps__thumb-y {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+  width: 4px !important;
+  right: 2px !important;
+  border-radius: 4px !important;
+}
+
+.ps__rail-y:hover > .ps__thumb-y,
+.ps__rail-y:focus > .ps__thumb-y,
+.ps__rail-y.ps--clicking .ps__thumb-y {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  width: 6px !important;
+}
+
+.ps__rail-y:hover,
+.ps__rail-y:focus {
+  background-color: transparent !important;
+}
+
+/* 确保滚动条不占用内容空间 */
+.ps {
+  position: relative;
+  overflow: hidden !important;
+} 

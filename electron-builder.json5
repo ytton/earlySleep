@@ -2,14 +2,16 @@
  * @see https://www.electron.build/configuration/configuration
  */
 {
-  "appId": "YourAppID",
+  "appId": "com.electron.earlySleep",
   "asar": true,
   "directories": {
     "output": "release/${version}"
   },
   "files": [
     "dist-electron",
-    "dist"
+    "dist",
+    "./config.ini",
+    "resources"
   ],
   "mac": {
     "artifactName": "${productName}_${version}.${ext}",
@@ -27,7 +29,8 @@
         ]
       }
     ],
-    "artifactName": "${productName}_${version}.${ext}"
+    "artifactName": "${productName}_${version}.${ext}",
+    "icon": "resources/icon.png"
   },
   "nsis": {
     "oneClick": false,

@@ -9,5 +9,8 @@
       ],
       "url": "https://json.schemastore.org/electron-builder"
     }
+  ],
+  "i18n-ally.localesPaths": [
+    "release/2.2.0/win-unpacked/locales"
   ]
 }

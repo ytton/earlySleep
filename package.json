@@ -1,11 +1,11 @@
 {
-  "name": "electron-vite-react",
-  "version": "2.2.0",
+  "name": "early-sleep",
+  "version": "0.1.0",
   "main": "dist-electron/main/index.js",
-  "description": "Electron Vite React boilerplate.",
-  "author": "草鞋没号 <308487730@qq.com>",
+  "description": "a tool for early sleep by shutdown pc",
+  "author": "yton <1105002007@qq.com>",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "debug": {
     "env": {
       "VITE_DEV_SERVER_URL": "http://127.0.0.1:7777/"
@@ -20,10 +20,23 @@
     "e2e": "playwright test"
   },
   "dependencies": {
-    "electron-updater": "^6.1.8"
+    "@ant-design/icons": "^5.5.1",
+    "@types/ini": "^4.1.1",
+    "@types/react-router-dom": "^5.3.3",
+    "antd": "^5.21.6",
+    "dayjs": "^1.11.13",
+    "electron-store": "^10.0.0",
+    "electron-updater": "^6.1.8",
+    "ini": "^5.0.0",
+    "moment": "^2.30.1",
+    "node-schedule": "^2.1.1",
+    "react-perfect-scrollbar": "^1.5.8",
+    "react-router-dom": "^6.28.0"
   },
   "devDependencies": {
+    "@electron-toolkit/utils": "^3.0.0",
     "@playwright/test": "^1.42.1",
+    "@types/node-schedule": "^2.1.7",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
     "@vitejs/plugin-react": "^4.2.1",
