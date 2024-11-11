@@ -371,10 +371,10 @@ ipcMain.on('open-settings', () => {
 ipcMain.on('save-settings', (event, settings: AppSettings) => {
   try {
     writeConfig(settings);
-
+    const newConfig = readConfig();
     // 通知所有窗口设置已更新
     BrowserWindow.getAllWindows().forEach(window => {
-      window.webContents.send('settings-updated', settings);
+      window.webContents.send('settings-updated', newConfig);
     });
 
     // 重新检查关机时间和倒计时
