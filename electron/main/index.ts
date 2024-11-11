@@ -14,7 +14,7 @@ const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const icon = path.join(__dirname, '../../resources/icon.ico');
 process.env.APP_ROOT = path.join(__dirname, '../..');
-
+const gotTheLock = app.requestSingleInstanceLock();
 export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron');
 export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist');
 export const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
@@ -305,32 +305,36 @@ function createTray(): void {
   }
 }
 
-// 应用初始化
-app.whenReady().then(() => {
-  electronApp.setAppUserModelId('com.electron');
+if (!gotTheLock) {
+  app.quit();
+} else {
+  // 应用初始化
+  app.whenReady().then(() => {
+    electronApp.setAppUserModelId('com.electron');
 
-  initShutdownTime();
-  // 创建窗口和托盘
-  createMainWindow();
-  createTray();
+    initShutdownTime();
+    // 创建窗口和托盘
+    createMainWindow();
+    createTray();
 
-  const shutdownTime = store.get('shutdownTime');
-  shutdownTime && scheduleShutdown(shutdownTime);
+    const shutdownTime = store.get('shutdownTime');
+    shutdownTime && scheduleShutdown(shutdownTime);
 
-  // 添加快捷键：Ctrl+Shift+I (Windows/Linux) 或 Cmd+Shift+I (macOS) 打开开发者工具
-  globalShortcut.register('CommandOrControl+Shift+I', () => {
-    const focusedWindow = BrowserWindow.getFocusedWindow();
-    if (focusedWindow) {
-      focusedWindow.webContents.toggleDevTools();
-    }
+    // 添加快捷键：Ctrl+Shift+I (Windows/Linux) 或 Cmd+Shift+I (macOS) 打开开发者工具
+    globalShortcut.register('CommandOrControl+Shift+I', () => {
+      const focusedWindow = BrowserWindow.getFocusedWindow();
+      if (focusedWindow) {
+        focusedWindow.webContents.toggleDevTools();
+      }
+    });
+
+    // 同步设置到渲染进程
+    const currentSettings = settings;
+    mainWindow?.webContents.on('did-finish-load', () => {
+      mainWindow?.webContents.send('sync-settings', currentSettings);
+    });
   });
-
-  // 同步设置到渲染进程
-  const currentSettings = settings;
-  mainWindow?.webContents.on('did-finish-load', () => {
-    mainWindow?.webContents.send('sync-settings', currentSettings);
-  });
-});
+}
 
 const initShutdownTime = () => {
   const now = dayjs();
