@@ -245,7 +245,7 @@ function createCountdownWindow(): void {
 
   // 设置窗口位置在右下角
   const { width, height } = require('electron').screen.getPrimaryDisplay().workAreaSize;
-  countdownWindow.setPosition(width - 620, height - 350);
+  countdownWindow.setPosition(width - 600, height - 320);
 
   // 在加载URL时传递关机时间参数
   const urlParams = new URLSearchParams();

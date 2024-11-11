@@ -170,7 +170,7 @@ const MainWindow: React.FC = () => {
             <div className="p-4 bg-blue-50">
               <Statistic
                 title={<Text className="text-gray-600">预计关机时间</Text>}
-                value={dayjs(selectedTime).format('HH:mm')}
+                value={dayjs(selectedTime).format('HH : mm')}
                 prefix={<ClockCircleOutlined />}
                 className="text-center"
               />
