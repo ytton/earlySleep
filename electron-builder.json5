@@ -4,6 +4,7 @@
 {
   appId: 'com.electron.earlySleep',
   asar: true,
+  productName: 'Early Sleep',
   directories: {
     output: 'release/${version}'
   },

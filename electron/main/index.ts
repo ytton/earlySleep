@@ -69,7 +69,8 @@ function createMainWindow(): void {
   });
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow?.show();
+    const shutdownTime = store.get('shutdownTime');
+    !shutdownTime && mainWindow?.show();
   });
 
   // 加载主页面
@@ -231,7 +232,7 @@ function createCountdownWindow(): void {
     frame: false,
     transparent: true,
     alwaysOnTop: true,
-    skipTaskbar: false,
+    skipTaskbar: true,
     resizable: false,
     show: false,
     webPreferences: {
@@ -283,12 +284,6 @@ function createTray(): void {
         label: '显示主窗口',
         click: () => {
           mainWindow?.show();
-        }
-      },
-      {
-        label: '退出',
-        click: () => {
-          app.quit();
         }
       }
     ]);
