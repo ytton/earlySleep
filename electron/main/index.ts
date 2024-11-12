@@ -436,7 +436,7 @@ function executeShutdown(): void {
     // 实际执行关机
     const { exec } = require('child_process');
     const isWindows = process.platform === 'win32';
-    const shutdownCommand = isWindows ? 'shutdown /s /t 0' : 'shutdown now';
+    const shutdownCommand = isWindows ? 'shutdown /f /s /t 0' : 'shutdown now';
 
     exec(shutdownCommand, (error: any) => {
       if (error) {
