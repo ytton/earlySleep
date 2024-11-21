@@ -428,10 +428,10 @@ function executeShutdown(): void {
     const settings = readConfig();
 
     // 如果是调试模式，只打印日志
-    if (settings.debugMode === 1) {
-      console.log('debugMode: shutdown pc');
-      return;
-    }
+    // if (settings.debugMode === 1) {
+    //   console.log('debugMode: shutdown pc');
+    //   return;
+    // }
 
     // 实际执行关机
     const { exec } = require('child_process');

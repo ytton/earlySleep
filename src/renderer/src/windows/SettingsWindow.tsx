@@ -3,7 +3,8 @@ import { CloseOutlined, FieldTimeOutlined, LockOutlined, BellOutlined, InfoCircl
 import { Card, InputNumber, Typography, Button, Form, message, Divider, Input, Tooltip } from 'antd';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import 'react-perfect-scrollbar/dist/css/styles.css';
-import { getSettings, type AppSettings, saveSettings } from '../utils/settings';
+import { getSettings, type AppSettings, saveSettings, getShutdownTime } from '../utils/settings';
+import dayjs from 'dayjs';
 
 const { Title, Text, Link } = Typography;
 const { ipcRenderer } = window.require('electron');
@@ -11,12 +12,28 @@ const { shell } = window.require('electron');
 
 const SettingsWindow: React.FC = () => {
   const [form] = Form.useForm<AppSettings>();
+  const [isDisabled, setIsDisabled] = useState(false);
+  const checkTimeLock = async (settings: AppSettings) => {
+    const shutdownTime = await getShutdownTime();
+    const lockHours = settings.lockHours;
 
+    if (lockHours === 0 || !shutdownTime) {
+      setIsDisabled(false);
+      return;
+    }
+
+    const shutdownMoment = dayjs(shutdownTime);
+    const now = dayjs();
+    const lockTime = shutdownMoment.subtract(lockHours, 'hour');
+
+    setIsDisabled(now.isAfter(lockTime));
+  };
   useEffect(() => {
     const loadSettings = async () => {
       try {
         const settings = await getSettings();
         form.setFieldsValue(settings);
+        checkTimeLock(settings)
       } catch (error) {
         message.error('加载设置失败');
       }
@@ -26,7 +43,8 @@ const SettingsWindow: React.FC = () => {
 
     // 监听设置更新
     const handleSettingsUpdate = (_: any, settings: AppSettings) => {
-      form.setFieldsValue(settings);
+        checkTimeLock(settings)
+        form.setFieldsValue(settings);
     };
 
     ipcRenderer.on('settings-updated', handleSettingsUpdate);
@@ -111,7 +129,7 @@ const SettingsWindow: React.FC = () => {
                     name="lockHours"
                     rules={[{ required: true, message: '请输入禁止修改时间！' }]}
                   >
-                    <InputNumber className="w-full rounded-sm" min={0} max={24} placeholder="请输入小时数" />
+                    <InputNumber disabled={isDisabled} className="w-full rounded-sm" min={0} max={24} placeholder="请输入小时数" />
                   </Form.Item>
 
                   <Form.Item
